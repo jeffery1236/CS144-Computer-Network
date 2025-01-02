@@ -17,7 +17,7 @@ class ByteStream {
     // that's a sign that you probably want to keep exploring
     // different approaches.
     std::deque<char> buffer;
-    size_t capacity;
+    size_t capacity;  // size of buffer
     bool end_write;
     bool end_read;
     size_t written_bytes;

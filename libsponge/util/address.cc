@@ -8,6 +8,16 @@
 #include <netdb.h>
 #include <stdexcept>
 #include <system_error>
+#include <array>        // Add this header
+using std::array;      // Add this using declaration
+
+#ifndef NI_MAXHOST
+#define NI_MAXHOST 1025
+#endif
+
+#ifndef NI_MAXSERV
+#define NI_MAXSERV 32
+#endif
 
 using namespace std;
 
@@ -97,7 +107,8 @@ pair<string, uint16_t> Address::ip_port() const {
         throw tagged_error(gai_error_category(), "getnameinfo", gni_ret);
     }
 
-    return {ip.data(), stoi(port.data())};
+    // return {ip.data(), stoi(port.data())};
+    return make_pair(string(ip.data()), static_cast<uint16_t>(stoi(port.data())));
 }
 
 string Address::to_string() const {

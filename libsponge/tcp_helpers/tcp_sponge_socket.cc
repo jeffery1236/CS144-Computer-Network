@@ -317,13 +317,18 @@ FullStackSocket::FullStackSocket()
                                                                          random_private_ethernet_address(),
                                                                          Address(LOCAL_TAP_IP_ADDRESS, "0"),
                                                                          Address(LOCAL_TAP_NEXT_HOP_ADDRESS, "0"))) {}
+// FullStackSocket::FullStackSocket()
+//     : TCPOverIPv4OverEthernetSpongeSocket(TCPOverIPv4OverEthernetAdapter(TapFD("tap10"),
+//                                          "00:00:00:00:00:00",
+//                                          Address("127.0.0.1", "8000"),
+//                                          Address("127.0.0.1", "8000"))) {}
 
 void FullStackSocket::connect(const Address &address) {
     TCPConfig tcp_config;
     tcp_config.rt_timeout = 100;
 
     FdAdapterConfig multiplexer_config;
-    multiplexer_config.source = {LOCAL_TAP_IP_ADDRESS, to_string(uint16_t(random_device()()))};
+    multiplexer_config.source = {"127.0.0.1", to_string(uint16_t(random_device()()))};
     multiplexer_config.destination = address;
 
     TCPOverIPv4OverEthernetSpongeSocket::connect(tcp_config, multiplexer_config);

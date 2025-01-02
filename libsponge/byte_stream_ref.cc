@@ -18,30 +18,52 @@ ByteStream::ByteStream(const size_t capa)
     : buffer(), capacity(capa), end_write(false), end_read(false), written_bytes(0), read_bytes(0) {}
 
 size_t ByteStream::write(const string &data) {
-    size_t bytes_to_write = std::min(data.size(), capacity - buffer.size());
-
-    for (size_t i=0; i<bytes_to_write; i++){
+    size_t canWrite = capacity - buffer.size();
+    size_t realWrite = min(canWrite, data.length());
+    for (size_t i = 0; i < realWrite; i++) {
         buffer.push_back(data[i]);
     }
-
-    written_bytes += bytes_to_write;
-    return bytes_to_write;
+    written_bytes += realWrite;
+    return realWrite;
 }
 
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const {
-    
+    size_t canPeek = min(len, buffer.size());
+    string out = "";
+    for (size_t i = 0; i < canPeek; i++) {
+        out += buffer[i];
+    }
+    return out;
 }
 
 //! \param[in] len bytes will be removed from the output side of the buffer
 void ByteStream::pop_output(const size_t len) {
+    if (len > buffer.size()) {
+        set_error();
+        return;
+    }
+    for (size_t i = 0; i < len; i++) {
+        buffer.pop_front();
+    }
+    read_bytes += len;
 }
 
 //! Read (i.e., copy and then pop) the next "len" bytes of the stream
 //! \param[in] len bytes will be popped and returned
 //! \returns a string
 std::string ByteStream::read(const size_t len) {
-
+    string out = "";
+    if (len > buffer.size()) {
+        set_error();
+        return out;
+    }
+    for (size_t i = 0; i < len; i++) {
+        out += buffer.front();
+        buffer.pop_front();
+    }
+    read_bytes += len;
+    return out;
 }
 
 void ByteStream::end_input() { end_write = true; }
