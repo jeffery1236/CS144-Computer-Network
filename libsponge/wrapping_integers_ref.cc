@@ -1,7 +1,6 @@
 #include "wrapping_integers.hh"
 
 #include <iostream>
-#include <cmath>
 // Dummy implementation of a 32-bit wrapping integer
 
 // For Lab 2, please replace with a real implementation that passes the
@@ -15,9 +14,7 @@ using namespace std;
 //! Transform an "absolute" 64-bit sequence number (zero-indexed) into a WrappingInt32
 //! \param n The input absolute 64-bit sequence number
 //! \param isn The initial sequence number
-WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
-    return WrappingInt32(isn.raw_value + (uint32_t) n);
-}
+WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) { return isn + uint32_t(n); }
 
 //! Transform a WrappingInt32 into an "absolute" 64-bit sequence number (zero-indexed)
 //! \param n The relative sequence number
@@ -30,22 +27,18 @@ WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
 //! and the other stream runs from the remote TCPSender to the local TCPReceiver and
 //! has a different ISN.
 uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
-    uint64_t min_round_trips = checkpoint >> 32; // (can do some bit operations to make this efficient)
-    // remainder = checkpoint & (2^32 - 1) // (can do some bit operations to make this efficient)
-
-    uint64_t current_round_trip_abs_seq_no = (min_round_trips << 32) + n;
-    uint64_t next_round_trip_abs_seq_no = ((min_round_trips + 1) << 32) + n;
-
-    if (abs(current_round_trip_abs_seq_no - checkpoint) <= abs(next_round_trip_abs_seq_no - checkpoint) ) {
-        return current_round_trip_abs_seq_no;
+    uint64_t tmp = 0;
+    uint64_t tmp1 = 0;
+    if (n - isn < 0) {
+        tmp = uint64_t(n - isn + (1l << 32));
     } else {
-        return next_round_trip_abs_seq_no;
+        tmp = uint64_t(n - isn);
     }
-
-    // if min_round_trips >= n:
-    //     num_round_trips = min_round_trips + 1
-    // else:
-    //     num_round_trips = min_round_trips
-    
-    // return num_round_trips * 2^32 + (uint64_t) n
+    if (tmp >= checkpoint)
+        return tmp;
+    tmp |= ((checkpoint >> 32) << 32);
+    while (tmp <= checkpoint)
+        tmp += (1ll << 32);
+    tmp1 = tmp - (1ll << 32);
+    return (checkpoint - tmp1 < tmp - checkpoint) ? tmp1 : tmp;
 }

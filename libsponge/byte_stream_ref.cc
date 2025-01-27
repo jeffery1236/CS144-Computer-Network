@@ -24,7 +24,7 @@ size_t ByteStream::write(const string &data) {
         buffer.push_back(data[i]);
     }
     written_bytes += realWrite;
-    return realWrite;
+    return realWrite;  
 }
 
 //! \param[in] len bytes will be copied from the output side of the buffer
