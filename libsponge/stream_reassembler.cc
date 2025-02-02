@@ -46,7 +46,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         _eof = true;
     }
 
-    cerr << "here" << data << ":" << index << ":" << unassembled_base_id << ":" << (_output.bytes_written() - _output.bytes_read()) << ":" << _eof;
+    // cerr << "here" << data << ":" << index << ":" << unassembled_base_id << ":" << (_output.bytes_written() - _output.bytes_read()) << ":" << _eof;
     /* if 
     
     */
@@ -64,7 +64,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                 buffer.pop_front();
                 check_data_valid_buffer.pop_front();
             }
-            cerr << "*" << data[start_id] << _eof;
+            // cerr << "*" << data[start_id] << _eof;
             ++unassembled_base_id;
 
             num_bytes_in_output = _output.bytes_written() - _output.bytes_read();
@@ -102,7 +102,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         // write to buffer
         size_t max_buffer_size = _capacity - num_bytes_in_output;
         size_t buffer_offset = index - unassembled_base_id;
-        cerr << "%" << max_buffer_size << ":" << buffer_offset << "%";
+        // cerr << "%" << max_buffer_size << ":" << buffer_offset << "%";
         // capacity is implicitly handled size buffer is popped when bytes are written to bytestream (total bytes in bytestream and buffer are maintained constant)
         for (size_t i = buffer_offset; i < max_buffer_size && (i-buffer_offset) < data.size(); i++) {
             if (i >= check_data_valid_buffer.size()) {
@@ -125,7 +125,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         }
     }
 
-    cerr << "end" << _eof << ":" << unassembled_size << ":" << count_valid_bytes();
+    // cerr << "end" << _eof << ":" << unassembled_size << ":" << count_valid_bytes();
     if (_eof && unassembled_size == 0) {
         _output.end_input();
     }
