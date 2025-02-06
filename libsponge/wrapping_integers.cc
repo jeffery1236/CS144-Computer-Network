@@ -30,41 +30,31 @@ WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
 //! and the other stream runs from the remote TCPSender to the local TCPReceiver and
 //! has a different ISN.
 uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
-    // uint64_t num_round_trips = checkpoint >> 32; // (can do some bit operations to make this efficient)
-
-    // if (isn.raw_value() >=n.raw_value()) {
-    //     uint64_t remainder = uint64_t(isn - n + (1L << 32));
-    //     return  ((num_round_trips - 1) << 32) + remainder;
-    // } else {
-    //     uint64_t remainder = uint64_t(n - isn);
-    //     return (num_round_trips << 32) + remainder;
-    // }
 
     uint64_t num_round_trips = checkpoint >> 32;  // Efficiently divide by 2^32
-    uint64_t remainder;
-    // Compute the remainder as the 32-bit offset from ISN
+    uint64_t offset;
+    // Compute the 32-bit offset from ISN
     if (n - isn < 0) {
-        remainder = uint64_t(n - isn + (1L << 32));
+        offset = uint64_t(n - isn + (1L << 32));
     } else {
-        remainder = uint64_t(n - isn);
+        offset = uint64_t(n - isn);
     }
 
     // Compute candidate absolute sequence numbers
-    uint64_t current_round_trip_abs_seq_no = (num_round_trips << 32) + remainder;
-    uint64_t next_round_trip_abs_seq_no = ((num_round_trips + 1) << 32) + remainder;
-    uint64_t prev_round_trip_abs_seq_no = ((num_round_trips - 1) << 32) + remainder;
+    uint64_t current_round_candidate = (num_round_trips << 32) + offset;
+    uint64_t next_round_candidate = ((num_round_trips + 1) << 32) + offset;
+    uint64_t prev_round_candidate = ((num_round_trips - 1) << 32) + offset;
 
-    // Compute absolute differences
-    int64_t diff_current = static_cast<int64_t>(current_round_trip_abs_seq_no) - static_cast<int64_t>(checkpoint);
-    int64_t diff_next = static_cast<int64_t>(next_round_trip_abs_seq_no) - static_cast<int64_t>(checkpoint);
-    int64_t diff_prev = static_cast<int64_t>(prev_round_trip_abs_seq_no) - static_cast<int64_t>(checkpoint);
+    uint64_t dist_cur = current_round_candidate > checkpoint ? current_round_candidate - checkpoint : checkpoint - current_round_candidate;
+    uint64_t dist_prev = prev_round_candidate > checkpoint ? prev_round_candidate - checkpoint : checkpoint - prev_round_candidate;
+    uint64_t dist_next = next_round_candidate > checkpoint ? next_round_candidate - checkpoint : checkpoint - next_round_candidate;
 
     // Return the absolute sequence number closest to checkpoint
-    if (std::llabs(diff_current) <= std::llabs(diff_next) && std::llabs(diff_current) <= std::llabs(diff_prev)) {
-        return current_round_trip_abs_seq_no;
-    } else if (std::llabs(diff_next) <= std::llabs(diff_prev)) {
-        return next_round_trip_abs_seq_no;
+    if (dist_cur <= dist_next && dist_cur <= dist_prev) {
+        return current_round_candidate;
+    } else if (dist_next <= dist_prev) {
+        return next_round_candidate;
     } else {
-        return prev_round_trip_abs_seq_no;
+        return prev_round_candidate;
     }
 }
