@@ -16,7 +16,6 @@ int main() {
             test.execute(SubmitSegment{"ab", 0});
             test.execute(BytesAssembled(2));
             test.execute(BytesAvailable("ab"));
-
             test.execute(SubmitSegment{"cd", 2});
             test.execute(BytesAssembled(4));
             test.execute(BytesAvailable("cd"));

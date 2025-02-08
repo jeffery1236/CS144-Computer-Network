@@ -33,6 +33,7 @@ int main() {
 
         /* segment with SYN + data */
         {
+            cerr << "SYN + DATA" << endl;
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
@@ -42,13 +43,17 @@ int main() {
                              .with_data("Hello, CS144!")
                              .with_result(SegmentArrives::Result::OK));
             test.execute(ExpectState{TCPReceiverStateSummary::SYN_RECV});
+            cerr << "SYN + DATA2" << endl;
             test.execute(ExpectAckno{WrappingInt32{isn + 14}});
+            cerr << "SYN + DATA3" << endl;
             test.execute(ExpectUnassembledBytes{0});
+            cerr << "SYN + DATA4" << endl;
             test.execute(ExpectBytes{"Hello, CS144!"});
         }
 
         /* empty segment */
         {
+            cerr << "EMPTY SEGMENT" << endl;
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
@@ -68,6 +73,7 @@ int main() {
 
         /* segment with null byte */
         {
+            cerr << "NULL BYTE" << endl;
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             const string text = "Here's a null byte:"s + '\0' + "and it's gone."s;
@@ -84,6 +90,7 @@ int main() {
 
         /* segment with data + FIN */
         {
+            cerr << "DATA + FIN" << endl;
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
@@ -102,6 +109,7 @@ int main() {
 
         /* segment with FIN (but can't be assembled yet) */
         {
+            cerr << "FIN (but can't be assembled yet)" << endl;
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});
@@ -125,6 +133,7 @@ int main() {
 
         /* segment with SYN + data + FIN */
         {
+            cerr << "SYN + DATA + FIN" << endl;
             uint32_t isn = uniform_int_distribution<uint32_t>{0, UINT32_MAX}(rd);
             TCPReceiverTestHarness test{4000};
             test.execute(ExpectState{TCPReceiverStateSummary::LISTEN});

@@ -95,23 +95,26 @@ int main() {
             test.execute(BytesAssembled(3));
 
             test.execute(SubmitSegment{"bcdefgh", 1}.with_eof(true));
-
+            cerr << "t1" << endl;
             test.execute(BytesAssembled(8));
+            cerr << "t2" << endl;
             test.execute(BytesAvailable{"abcdefgh"});
+            cerr << "t3" << endl;
             test.execute(AtEof{});
+            cerr << "t4" << endl;
         }
 
         {
             ReassemblerTestHarness test{8};
-
+            
             test.execute(SubmitSegment{"abc", 0});
             test.execute(BytesAssembled(3));
             test.execute(NotAtEof{});
-
+            cerr << "t5" << endl;
             test.execute(SubmitSegment{"ghX", 6}.with_eof(true));
             test.execute(BytesAssembled(3));
             test.execute(NotAtEof{});
-
+            cerr << "t6" << endl;
             test.execute(SubmitSegment{"cdefg", 2});
             test.execute(BytesAssembled(8));
             test.execute(BytesAvailable{"abcdefgh"});

@@ -38,8 +38,11 @@ size_t StreamReassembler::count_valid_bytes() {
 }
 
 void StreamReassembler::check_contiguous() {
+    cerr << "check_contiguous" << endl;
     while (!_output.input_ended()) {
+        cerr << "check_contiguous1" << endl;
         if (buffer.empty() || !check_data_valid_buffer.front()) {
+            cerr << "break" << endl;
             break;
         }
         cerr << "write " << buffer.front() << endl;
@@ -51,6 +54,8 @@ void StreamReassembler::check_contiguous() {
         check_data_valid_buffer.push_back(false);
         --unassembled_size;
         ++unassembled_base_id;
+
+        cerr << "unassembled_base_id " << unassembled_base_id << endl;
 
         if (_eof && unassembled_size == 0) {
             cerr << "end_input1" << endl;
@@ -67,20 +72,19 @@ void StreamReassembler::check_contiguous() {
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
     if (data.length() == 0 && eof && unassembled_size == 0) {
         _output.end_input();
-        cerr << "end_input0" << endl;
         return;
     }
     // Maintain buffer and check_data_valid_buffer
-    cerr << "here0 " << eof << " " << index << " " << data.size() << " " << _capacity << " " << _output.buffer_size() << endl;
+    // cerr << "here0 " << eof << " " << index << " " << data.size() << " " << _capacity << " " << _output.buffer_size() << endl;
     if (eof && (index + data.size()) <= _capacity) {
-    // if (eof ) {
-        cerr << "eof" << endl;
         _eof = true;
     }
 
+    size_t capacity_window_end = _output.bytes_read() + _capacity;
+
     size_t segment_start = max(index, unassembled_base_id);
-    size_t segment_end = min(index + data.size(), _capacity);
-    cerr << "here1 " << index << " " << unassembled_base_id << " " << _capacity << " " << segment_start << " " << segment_end <<  endl;
+    size_t segment_end = min(index + data.size(), capacity_window_end);
+    cerr << "h1 " << index << " " << unassembled_base_id << " " << _capacity << " " << capacity_window_end  << " " << segment_start << " " << segment_end <<  endl;
 
     for (size_t i = segment_start; i < segment_end; i++) {
         size_t buffer_offset = i - unassembled_base_id;
@@ -90,6 +94,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
             buffer[buffer_offset] = data[data_offset];
 
             unassembled_size++;
+            cerr << data[data_offset] << " written to buffer" << endl;
         }
     }
     check_contiguous();
