@@ -25,6 +25,7 @@ class TCPSender {
     std::queue<TCPSegment> _segments_out{};
 
     //! retransmission timer for the connection
+    // Initial value of Retransmisson timeout
     unsigned int _initial_retransmission_timeout;
 
     //! outgoing stream of bytes that have not yet been sent
@@ -39,6 +40,7 @@ class TCPSender {
     uint16_t _receiver_window_size = 0;
     uint16_t _receiver_free_space = 0;
     uint16_t _consecutive_retransmissions = 0;
+    // Number of milliseconds to wait before resending an outstanding TCP segment
     unsigned int _rto = 0;
     unsigned int _time_elapsed = 0;
     bool _timer_running = false;

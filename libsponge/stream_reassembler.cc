@@ -81,6 +81,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     }
 
     size_t capacity_window_end = _output.bytes_read() + _capacity;
+    // size_t capacity_window_end = unassembled_base_id - buffer.size() + _capacity;
 
     size_t segment_start = max(index, unassembled_base_id);
     size_t segment_end = min(index + data.size(), capacity_window_end);
